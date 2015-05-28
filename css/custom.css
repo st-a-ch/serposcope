@@ -417,3 +417,14 @@ h2 {
 .speedshot .tab-view img, .img-container img {
 	display:none;
 }
+
+.table-log .del,.table-log .log {
+    text-align:center;
+    width:30px;
+}
+.table-log .older td {
+    border-top-color: #DF0000;
+}
+.table-log tr:hover td {
+    background-color: #DFDFDF !important;
+}
