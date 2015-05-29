@@ -1,8 +1,12 @@
+/.gitignore
+/.htaccess
+/.htpasswd
 /inc/config.php
-/.*
-/tmp/
 /docs/
 /tests/
 /demo/
+/tmp/
+/*/index.html
 /modules/Test/
+/modules/test.php
 /nbproject/
