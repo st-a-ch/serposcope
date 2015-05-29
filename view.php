@@ -28,39 +28,12 @@ if (isset($_GET['idGroup'])) {
     $resGroup = $db->query($qGroup);
     if (($group = mysql_fetch_assoc($resGroup))) {
 		$set = json_decode($group['user']);
-		//usage: $set->opcja  np: $set->setting
-
-//        if(isset($_COOKIE[$group['idGroup']])){
-//            if($_COOKIE[$group['idGroup']] == "h"){
-//                $render = "highcharts";
-//            }else if($_COOKIE[$group['idGroup']] == "t"){
-//                $render = "table";
-//            }
-//        }
         
-        if(isset($serposcopeCookie['r_h'])){
-            if(in_array($group['idGroup'],$serposcopeCookie['r_h'])){
-                $render = "highcharts";
-            }
-        }
-        if(isset($serposcopeCookie['r_s'])){
-            if(in_array($group['idGroup'],$serposcopeCookie['r_s'])){
-                $render = "social";
-            }
-        }
-        
-        if(isset($serposcopeCookie['r_t'])){
-            if(in_array($group['idGroup'],$serposcopeCookie['r_t'])){
-                $render = "table";
-            }
-        }    
-        
-        if($render == "table"){
+        if ($_GET['wiev'] == 'table'){
             $nDay = RENDER_TABLE_NDAY;
         }else{
             $nDay = RENDER_HIGHCHARTS_NDAY;
         }
-        
         $startDate = strtotime("now") - (24*3600*$nDay);
         if(isset($_GET['startdate']) ){
             $dateArr = explode("/", $_GET['startdate']);
@@ -161,19 +134,19 @@ if ($adminAcces || $set->restart){echo"<a href='#' id='btn-force-run' class='btn
 ?>
     <div style='float:right;' >
         <span rel="tooltip" title="Wykres" class="radio-render" value="highcharts">
-            <i class='icon-signal icon-<?php echo $render === "highcharts" ? "red" : "true" ?>' ></i>
+            <a href='?wiev=chart&idGroup=<?php echo $_GET['idGroup']; ?>' class='icon-signal icon-<?php echo $render === "highcharts" ? "red" : "true" ?>' ></a>
         </span>
         
         <span rel="tooltip" title="Tabela" class="radio-render" value="table">
-            <i class='icon-th icon-<?php echo $render === "table" ? "red" : "true" ?>' ></i>
+            <a href='?wiev=table&idGroup=<?php echo $_GET['idGroup']; ?>' class='icon-th icon-<?php echo $render === "table" ? "red" : "true" ?>' ></a>
         </span>
 
         <span rel="tooltip" title="Kondycja & SocialMedia" class="radio-render" value="social">
-            <i class='icon-heart icon-<?php echo $render === "social" ? "red" : "true" ?>' ></i>
+            <a href='?wiev=social&idGroup=<?php echo $_GET['idGroup']; ?>' class='icon-heart icon-<?php echo $render === "social" ? "red" : "true" ?>' ></a>
         </span>
         
         <span rel="tooltip" title="Multigraph" id="multigraph" class="radio-render" value="multigraph">
-            <i class='icon-picture'></i>
+            <a href='/?idGroup=<?php echo $_GET['idGroup']; ?>' class='icon-picture'></a>
         </span>
     </div>
 </div>
@@ -369,55 +342,6 @@ if ($adminAcces || $set->restart){echo"<a href='#' id='btn-force-run' class='btn
                 }
             );
         });
-        
-        $('.radio-render').click(function(){
-            var idGroup = <?php echo $group['idGroup']; ?>;
-            var key =  idGroup;
-            var cookie = readCookie("serposcope");
-            var render = $(this).attr("value");
-            if(cookie !== null){
-                cookie = JSON.parse(cookie);
-            }
-            
-            if(cookie === null){
-                cookie = {};
-            }
-            
-            if( cookie.r_h === undefined){
-                cookie.r_h = [];
-            }
-            if( cookie.r_s === undefined){
-                cookie.r_s = [];
-            }
-            
-            if( cookie.r_t === undefined){
-                cookie.r_t = [];
-            }
-            
-            if(cookie.r_h.indexOf(key) !== -1){
-                cookie.r_h.splice(cookie.r_h.indexOf(key),1);
-            }            
-            if(cookie.r_s.indexOf(key) !== -1){
-                cookie.r_s.splice(cookie.r_h.indexOf(key),1);
-            }            
-            if(cookie.r_t.indexOf(key) !== -1){
-                cookie.r_t.splice(cookie.r_t.indexOf(key),1);
-            }   
-            
-            if(render === "table"){
-                cookie.r_t.push(key);
-            }else if(render === "highcharts"){
-                cookie.r_h.push(key);
-            }else if(render === "social"){
-                cookie.r_s.push(key);
-            }else{
-                return;
-            }
-            
-            setCookie("serposcope", JSON.stringify(cookie), 365);
-            location.replace('?idGroup=<?php echo $group['idGroup']; ?>');
-        });
-        
     }); 
     
     

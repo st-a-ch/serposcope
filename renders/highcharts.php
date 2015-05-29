@@ -12,7 +12,8 @@
 if(!defined('INCLUDE_OK'))
     die();
 
-function render($ranks, $target, $keywords){  
+function render($ranks, $target, $keywords){
+	global $nDay;  
     $height=450;
     $idDiveu = rand(1000,3000);
     
@@ -81,8 +82,8 @@ $(document).ready(function() {
 ";
 
     foreach ($keywords as $keyword) {
-    	$pass = '';
-    	$hide = '';
+    	$pass = 0;
+      $maxpass = 0;
         echo "{\n";
         echo "\tname: ".json_encode_tag($keyword).",stack:0,\n";
         echo "\tdata: [";
@@ -90,13 +91,17 @@ $(document).ready(function() {
         	$dateo = date('d M',strtotime($rank['date']));
         	$dateo = to_PL($dateo);
             if(isset($rank[$target]) && isset($rank[$target][$keyword])){
-            	if($rank[$target][$keyword][0] == 1){$hide++;  $false = 1;} else {$false = 0;}
+            	if($rank[$target][$keyword][0] == 1){$false = 1;} else {$false = 0;}
                 echo "{y:".$rank[$target][$keyword][0].",name:'".$dateo."<br />".h8($rank[$target][$keyword][1])."',url:'".h8($rank[$target][$keyword][1])."'},";
-                $marker = 'true'; $pass++;
+                $pass++;
             }else{
-                echo "null,"; if($pass == 0){$marker = 'false';}
+                echo "null,"; 
             }
+          $maxpass++;
         }
+        if($pass == 0 || $maxpass > $nDay+1){$marker = 'false';} else {$marker = 'true';}
+        if($maxpass > 30){$intrv = floor($maxpass / 15);}
+        
         echo "],\n";
         echo "\tmarker: {symbol: 'circle',enabled: ".$marker."},\n";
         if($false == 1){$ready++;}
@@ -130,11 +135,11 @@ $(document).ready(function() {
     echo "]\n";
     if(!$show){echo ",visible:false";}
     echo "},\n";
-    
+    if(!$intrv){$intrv = 2;}
     echo "
                 ],
                     
-                xAxis: {tickInterval: 2,
+                xAxis: {tickInterval: ".$intrv.",
                     categories: [
 ";
     foreach ($ranks as $rank) {

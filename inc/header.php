@@ -73,7 +73,7 @@ header("Content-type: text/html;charset=windows-1250");
         }
         </script>
         <script>
-       $( document ).ready(function() {
+       $(function() {
         $("#Change").click(function(){
          render = $("#Change").attr("value");
           if(render == 'Multigraph'){
@@ -89,12 +89,42 @@ header("Content-type: text/html;charset=windows-1250");
           if(render == 'Table'){
          		$('#btn_7').attr("src", "img/i_call.png");
           	$('#Change').attr("value", "Social");
-          	setCookie("serpolink", 'Social', 365);
+         	setCookie("serpolink", 'Social', 365);
           }
           if(render == 'Social'){
           	$('#btn_7').attr("src", "img/i_herts.png");
           	$('#Change').attr("value", "Multigraph");
           	setCookie("serpolink", 'Multigraph', 365);
+          }
+         });
+         $("#Change").mouseover(function(){
+         render = $("#Change").attr("value");
+          if(render == 'Multigraph'){
+          	$('#btn_7').attr("src", "img/i_lines.png");
+          }
+          if(render == 'Line'){
+         		$('#btn_7').attr("src", "img/i_call.png");
+          }
+          if(render == 'Table'){
+          	$('#btn_7').attr("src", "img/i_herts.png");
+          }
+          if(render == 'Social'){
+          	$('#btn_7').attr("src", "img/i_multi.png");
+          }
+         });
+         $("#Change").mouseout(function(){
+         render = $("#Change").attr("value");
+          if(render == 'Multigraph'){
+          	$('#btn_7').attr("src", "img/i_multi.png");
+          }
+          if(render == 'Line'){
+          	$('#btn_7').attr("src", "img/i_lines.png");
+          }
+          if(render == 'Table'){
+         		$('#btn_7').attr("src", "img/i_call.png");
+          }
+          if(render == 'Social'){
+          	$('#btn_7').attr("src", "img/i_herts.png");
           }
          });
         });
@@ -120,7 +150,15 @@ if($_COOKIE['serpolink'] == 'Line') {$i_url = 'view.php?wiev=chart&idGroup='; $i
 if($_COOKIE['serpolink'] == 'Table') {$i_url = 'view.php?wiev=table&idGroup='; $i_value = 'Table'; $i_src = 'call';}
 if($_COOKIE['serpolink'] == 'Social') {$i_url = 'view.php?wiev=social&idGroup='; $i_value = 'Social'; $i_src = 'herts';}
 if($_COOKIE['serpolink'] == 'Multigraph') {$i_url = '/?idGroup='; $i_value = 'Multigraph'; $i_src = 'multi';}
-echo"                           <li><a id='Change' href='javascript:location.reload()' title='Zmieñ widok podstawowy' value='".$i_value."' rel='tooltip' data-placement='bottom'><img id='btn_7' src='img/i_".$i_src.".png' /></a></li>\r\n";
+
+if($_COOKIE['serpolink'] == 'Line') {$f_url = 'view.php?wiev=table&idGroup=';}
+if($_COOKIE['serpolink'] == 'Table') {$f_url = 'view.php?wiev=social&idGroup=';}
+if($_COOKIE['serpolink'] == 'Social') {$f_url = '/?idGroup=';}
+if($_COOKIE['serpolink'] == 'Multigraph') {$f_url = 'view.php?wiev=chart&idGroup=';}
+
+
+if($testuj) {$reloadp = $f_url.$testuj;} else {$reloadp = '/';}
+echo "                           <li><a id='Change' href='".$reloadp."' title='Zmieñ widok podstawowy' value='".$i_value."' rel='tooltip' data-placement='bottom'><img id='btn_7' src='img/i_".$i_src.".png' /></a></li>\r\n";
 if ($adminAcces || $userAcces){echo"                           <li><a href='new.php' title='Nowy test' rel='tooltip' data-placement='bottom'><img id='btn_6' src='img/new.png' /></a></li>\r\n";}
 if ($adminAcces || $userAcces){echo"                           <li><a href='website.php' title='Zobacz domeny' rel='tooltip' data-placement='bottom'><img id='btn_5' src='img/www.png' /></a></li>\r\n";}
 if ($adminAcces){echo"                           <li><a href='options.php' title='Zmieñ ustawienia' rel='tooltip' data-placement='bottom'><img id='btn_4' src='img/setting.png' /></a></li>\r\n";}

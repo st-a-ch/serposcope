@@ -20,8 +20,8 @@ if(!defined('SQL_PREFIX')){
 }
 
 // advanced options
-define('RENDER_TABLE_NDAY',20);
-define('RENDER_HIGHCHARTS_NDAY',30);
+define('RENDER_TABLE_NDAY',30);
+define('RENDER_HIGHCHARTS_NDAY',60);
 
 define('CACHE_LIFETIME',8); // Maximum age of the cache in hour
 define('CACHE_RUN_CLEAR',TRUE); // Clear the cache after each run even if lifetime isn't expired
@@ -31,6 +31,6 @@ define('DEBUG_LOG',TRUE); // Enable debug logging
 
 define('CAPTCHA_TIMEOUT',60);
 define('CAPTCHA_RETRY',3);
-define('CAPTCHA_MAX_RUN',100); // Maximum captcha to break in a run
+define('CAPTCHA_MAX_RUN',5); // Maximum captcha to break in a run
 
 ?>
