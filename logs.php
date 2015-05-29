@@ -98,10 +98,18 @@ if (!empty($info_msg)) {
         $( "#CloseScanInfo" ).click(function() { hMsg(); });
         function hMsg() {$( ".CloseScanInfo" ).slideUp(900);}
 <?php
-if($adminAcces) {echo '    $(function() {
-    	  $(".btn-force-run").click(function(){
+if($adminAcces) {echo '
+
+	    $(function() {
+	    $(".btn-force-run").mouseover(function() {
+	    	 $(".id_" + $(this).attr("data-id") ).addClass("selected");
+	    });
+	    $(".btn-force-run").mouseout(function() {
+	    	 $(".id_" + $(this).attr("data-id") ).removeClass("selected");
+	    });
+	    $(".btn-force-run").click(function(){
          idtest =($(this).attr("data-id"));
-         nmtest =($(this).attr("data-name"));
+         nrtest =($(this).attr("data-nr"));
             var canRun=false;
             $.ajax({
                 type: "POST",
@@ -127,7 +135,7 @@ if($adminAcces) {echo '    $(function() {
                     document.location.href = "index.php";
                     return;
                 }
-                if(!confirm("Zostanie uruchomiony skrypt skanowania " + nmtest + "!\r\n\r\nCzy napewno chcesz kontynuowaæ?")){
+                if(!confirm("Zostanie uruchomiony skrypt skanowania " + nrtest + "\r\n\r\nCzy napewno chcesz kontynuowaæ?")){
                     return;
                 }
                 var imgRun = new Image();
@@ -153,7 +161,7 @@ if($adminAcces) {echo '    $(function() {
         	       if(!$adminAcces && !$ID){$filtr ='WHERE `logs` LIKE \'%'.$groupd['name'].' with module%\'';}
         	       if($groupd['name']) {if($ID){$usunf =" <a href='logs.php'>Usuñ filtr</a>";}else {$groupd['module'] = 'tescie';} echo "<tr class='centered'><th colspan='7'>Filtrowanie wyników dla ".$groupd['name']." w ".$groupd['module'].$usunf." </th></tr>\n";}
         	   ?>
-            <tr><th>#</th><?php if($adminAcces || (!$adminAcces && !$ID)){echo "<th>Test</th>";} ?><th>Start</th><th>Stop</th><th>Time</th><th>Logs</th><th class="<?php echo $hName; ?>">Delete</th></tr>
+            <tr><th>#</th><?php if($adminAcces || (!$adminAcces && !$ID)){echo "<th>Test</th>";} ?><th class="ctr">ID</th><th>Start</th><th>Stop</th><th>Run Time</th><th class="<?php echo $hName; ?>">Delete</th><th>Logs</th></tr>
         </thead>
         <tbody>
 <?php
@@ -165,8 +173,6 @@ if($adminAcces) {echo '    $(function() {
     $count = $rowCount[0];
     $totalPages = ceil($count/$perPage);
     $page=isset($_GET['page']) && intval($_GET['page']) > 0 ? intval($_GET['page']) : 1;
-    
-    
     $start = ($page-1)*$perPage;
     $q="SELECT idRun,dateStart,id,dateStop,pid,haveError,timediff(dateStop,dateStart) diff FROM `".SQL_PREFIX."run` ".$filtr." ORDER BY dateStart DESC LIMIT $start,$perPage";
     $qsd="SELECT `idGroup` FROM `".SQL_PREFIX."group`";
@@ -175,29 +181,32 @@ if($adminAcces) {echo '    $(function() {
     $listy = array();
     while($runds=mysql_fetch_assoc($resultsd)) {array_push($listy, $runds['idGroup']);}		//dodawanie do listy
     while($result && ($run=mysql_fetch_assoc($result))){
+        echo "<tr class='";
     	if($done != '0' AND $run['dateStart']){$ntest = substr($run['dateStart'],8,2); $done = '0';}
-        if($run['dateStop'] == null){
-            $class = "warning";
+    	if($ntest != substr($run['dateStart'],8,2) AND $done != 'ok' AND !$ID){echo " older"; $done = 'ok'; $stop = '1';}
+                if($run['dateStop'] == null){
+            echo "id_".$run['id']." warning ";
+            	echo "error";
         }else{
             if($run['haveError']){
-                $class = "error";
+                echo "id_".$run['id']." error ";
             }else{
-                $class = "success";
+                echo " success ";
+                if(!$stop) {unset($listy[array_search($run['id'],$listy)]);}		//usuwanie z listy
             }
         }
-    	if($ntest != substr($run['dateStart'],8,2) AND $done != 'ok' AND !$ID){
-    		$class .= " older"; $done = 'ok'; $stop = '1';
-}
-if(!$stop AND $class = "success") {unset($listy[array_search($run['id'],$listy)]);}		//usuwanie z listy
-        echo "<tr class='".$class."' >\n";
+        
         $infor = mysql_fetch_assoc($db->query("SELECT * FROM `".SQL_PREFIX."group` WHERE idGroup = " . intval($run['id'])));
+        echo "' >\n";
         echo "	<td>".$run['idRun']."</td>\n";
-if($adminAcces || (!$adminAcces && !$ID)){echo "	<td class='test' style='background-image:url(modules/".$infor['module']."/icon.png);'> ".$infor['name']."</td>\n";}
+if($adminAcces || (!$adminAcces && !$ID)){echo "	<td class='test' style='background-image:url(modules/".$infor['module']."/icon.png);'><a href='/view.php?wiev=chart&idGroup=".$run['id']."'>".$infor['name']."</a></td>\n";}
+        echo "	<td class='ctr'>".$run['id']."</td>\n";
         echo "	<td>".$run['dateStart']."</td>\n";
         echo "	<td>".$run['dateStop']."</td>\n";
         echo "	<td>".$run['diff']."</td>\n";
-        echo "	<td class='log'><a href='logs.php?id=".$run['idRun']."' target='log' ><img data-original-title='Zobacz log' src='img/edit.gif'></a></td>\n";
-if($adminAcces){        echo "	<td class='del'><a href='logs.php?did=".$run['idRun']."' onclick='return warningDeleteRun()' ><img data-placement='right' data-original-title='Usuñ ten wpis' class='del-event' src='img/trash.png' rel='tooltip'></a></td>\n";}
+if($adminAcces){        echo "	<td class='del'><a href='logs.php?did=".$run['idRun']."' onclick='return warningDeleteRun()' ><img data-original-title='Usuñ ten wpis' class='del-event' src='img/trash.png'></a></td>\n";}
+        echo "	<td class='log'><a href='logs.php?id=".$run['idRun']."' target='log' ><img data-original-title='Zobacz log' data-placement='right' rel='tooltip' src='img/edit.gif'></a></td>\n";
+
         echo "</tr>\n";
     }
 ?>
@@ -207,14 +216,14 @@ if($adminAcces){        echo "	<td class='del'><a href='logs.php?did=".$run['idR
 <?php
 foreach ($listy as $val) {
 	  $infos = mysql_fetch_assoc($db->query("SELECT * FROM `".SQL_PREFIX."group` WHERE idGroup = " . $val));
-    $todo .= "<a class='btn btn-run btn-force-run' data-id='$val' data-name='".$infos['name']." [".$infos['module']."]'>$val</a> \n";
+    $todo .= "<a class='btn btn-run btn-force-run' data-placement='top' data-id='$val' rel='tooltip' data-original-title='<img src=\"modules/".$infos['module']."/icon.png\" /> <b style=\"color:black;\" >".$infos['name']."</b>' data-nr='".$infos['name']." [".$infos['module']."]'>$val</a> \n";
 }
     if($page===1){
         echo "<li class='disabled previous' ><a href='#' >&larr; Nowsze</a></li>";
     }else{
         echo "<li class='previous' ><a href='?idGroup=$ID&page=".($page-1)."' >&larr; Nowsze</a></li>";
     }
-    if($adminAcces){echo "<li class='middle' >".$todo."</li>";}
+    if($adminAcces & $start == 0){echo "<li class='middle' >".$todo."</li>";}
     if($page >= $totalPages){
         echo "<li class='disabled next' ><a href='#' >Starsze &rarr;</a></li>";
     }else{

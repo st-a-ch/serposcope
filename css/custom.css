@@ -418,13 +418,16 @@ h2 {
 	display:none;
 }
 
-.table-log .del,.table-log .log {
+.table-log .del, .table-log .log, .table-log .ctr {
     text-align:center;
     width:30px;
+}
+.table-log a {
+    color:black;
 }
 .table-log .older td {
     border-top-color: #DF0000;
 }
-.table-log tr:hover td {
+.table-log tr:hover td, .table-log .selected td {
     background-color: #DFDFDF !important;
 }
