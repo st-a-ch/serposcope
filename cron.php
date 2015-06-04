@@ -24,8 +24,26 @@ if(php_sapi_name() != "cli"){
     header('Content-type: text/plain');
 }
 
-$logs="";
-$runid=null;
+$argIdGroup=-1;
+
+if ($_GET['idGroup'] == 0) {		//runing non xecuted or haved error scan
+    $q="SELECT id,haveError FROM `".SQL_PREFIX."run` WHERE `dateStart` > '".date('Y-m-d')." '";
+    $qsd="SELECT `idGroup` FROM `".SQL_PREFIX."group`";
+    $result = $db->query($q);
+    $resultsd = $db->query($qsd);
+    $listy = array();
+    while($runds = mysql_fetch_assoc($resultsd)) {array_push($listy, $runds['idGroup']);}
+    while($result && ($run = mysql_fetch_assoc($result))){if(!$run['haveError']){unset($listy[array_search($run['id'],$listy)]);}}
+		foreach ($listy as $val) {$argIdGroup=intval($val);}
+		if ($argIdGroup < 0) {die();}
+} else {$argIdGroup = intval($_GET['idGroup']);}
+
+if(isset($argv[1])){
+    $argIdGroup = intval($argv[1]);
+}
+
+$logs = "";
+$runid = null;
 function my_ob_logs($str){
     global $logs;
     global $runid;
@@ -42,7 +60,7 @@ ob_start('my_ob_logs',2);
 
 // if another job is running, abort
 $res=$db->query("SELECT * FROM `".SQL_PREFIX."run` WHERE ISNULL(dateStop)");
-if($res && ($run=mysql_fetch_assoc($res))){
+if($res && ($run = mysql_fetch_assoc($res))){
     e('Cron',"Fatal, another job is running : PID = ".$run['pid'].", dateStart = ".$run['dateStart']);
     e('Cron',"Abort the current running jobs via the \"Logs\" page");
     die();
@@ -102,13 +120,7 @@ $dbproxies = load_proxies();
 // load the proxies
 $proxies = new Proxies( $dbproxies + $urlproxies);
 
-$argIdGroup=-1;
-if(isset($_GET['idGroup'])){
-    $argIdGroup=intval($_GET['idGroup']);
-}
-if(isset($argv[1])){
-    $argIdGroup=intval($argv[1]);
-}
+
 
 $query = "SELECT * FROM `".SQL_PREFIX."group`"; //" WHERE idGroup = 10";
 if($argIdGroup > 0){
